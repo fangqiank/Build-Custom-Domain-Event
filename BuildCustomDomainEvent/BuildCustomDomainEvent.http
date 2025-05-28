@@ -1,0 +1,6 @@
+@BuildCustomDomainEvent_HostAddress = http://localhost:5276
+
+GET {{BuildCustomDomainEvent_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
