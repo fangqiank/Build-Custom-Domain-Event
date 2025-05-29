@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildCustomDomainEvent", "B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample2", "Sample2\Sample2.csproj", "{B40FF6CA-6CEC-4009-B3B2-6C4490EBB173}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediatRReplacedByDomainEvent", "MediatRReplacedByDomainEvent\MediatRReplacedByDomainEvent.csproj", "{FC32BFA0-DD80-45D8-9122-97EC73122A1B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{B40FF6CA-6CEC-4009-B3B2-6C4490EBB173}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B40FF6CA-6CEC-4009-B3B2-6C4490EBB173}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B40FF6CA-6CEC-4009-B3B2-6C4490EBB173}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC32BFA0-DD80-45D8-9122-97EC73122A1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC32BFA0-DD80-45D8-9122-97EC73122A1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC32BFA0-DD80-45D8-9122-97EC73122A1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC32BFA0-DD80-45D8-9122-97EC73122A1B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

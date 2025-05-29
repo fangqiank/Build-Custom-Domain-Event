@@ -1,0 +1,6 @@
+@MediatRReplacedByDomainEvent_HostAddress = http://localhost:5175
+
+GET {{MediatRReplacedByDomainEvent_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
