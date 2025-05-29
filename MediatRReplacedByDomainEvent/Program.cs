@@ -7,16 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 // ≈‰÷√ƒ⁄¥Ê ˝æ›ø‚
-//builder.Services.AddDbContext<OrderDbContext>(options =>
-//    options.UseInMemoryDatabase("OrdersDB")
-//           .ConfigureWarnings(warnings =>
-//               warnings.Ignore(CoreEventId.TransactionIgnoredWarning)));
-
 var connection = new SqliteConnection("Data Source=:memory:");
 connection.Open();
 
@@ -52,6 +45,30 @@ app.MapPost("/orders", async (
 ) => {
     var result = await service.CreateOrder(request);
     return Results.Created($"/orders/{result.OrderId}", result);
+});
+
+app.MapGet("/orders/{id:guid}", async (Guid id, OrderDbContext context) =>
+{
+    var order = await context.Orders
+        .Include(o => o.Items)
+        .Where(o => o.Id == id)
+        .Select(o => new OrderDto(
+            o.Id,
+            o.CustomerName,
+            o.TotalAmount,
+            o.CreatedAt,
+            o.Items.Select(i => new OrderItemDto(
+                i.Id,
+                i.ProductName,
+                i.Quantity,
+                i.UnitPrice
+            )).ToList()
+        ))
+        .FirstOrDefaultAsync();
+
+    return order is null
+        ? Results.NotFound(new { Message = "Order not found" })
+        : Results.Ok(order);
 });
 
 app.Run();
