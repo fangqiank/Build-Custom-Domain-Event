@@ -1,15 +1,12 @@
-﻿namespace MediatRReplacedByDomainEvent.Dtos
+﻿using MediatRReplacedByDomainEvent.Models;
+
+namespace MediatRReplacedByDomainEvent.Dtos
 {
     public record OrderDto(
     Guid Id,
-    string CustomerName,
-    decimal TotalAmount,
+    string CustomerEmail,
     DateTime CreatedAt,
-    List<OrderItemDto> Items);
-
-    public record OrderItemDto(
-     Guid Id,
-     string ProductName,
-     int Quantity,
-     decimal UnitPrice);
+    OrderStatus Status,
+    decimal TotalAmount,
+    IEnumerable<OrderItemDto> Items);
 }

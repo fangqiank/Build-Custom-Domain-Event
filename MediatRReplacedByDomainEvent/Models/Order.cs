@@ -2,33 +2,51 @@
 
 namespace MediatRReplacedByDomainEvent.Models
 {
-    public class Order
+    public class Order : Entity<Guid>
     {
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-        public required string CustomerName { get; set; }
-        public decimal TotalAmount { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public List<OrderItem> Items { get; set; } = new();
+        public string CustomerEmail { get; private set; }
+        public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
+        public OrderStatus Status { get; private set; } = OrderStatus.Pending;
+        private readonly List<OrderItem> _items = new();
+        public IReadOnlyCollection<OrderItem> Items => _items.AsReadOnly();
 
-        public void AddItem(string productName, int quantity, decimal unitPrice)
+        private Order() { } // For EF Core
+
+        public Order(string customerEmail, List<OrderItem> items)
         {
-            Items.Add(new OrderItem
-            {
-                ProductName = productName,
-                Quantity = quantity,
-                UnitPrice = unitPrice
-            });
-            TotalAmount = Items.Sum(i => i.Quantity * i.UnitPrice);
-        }
-    }
+            if (string.IsNullOrWhiteSpace(customerEmail))
+                throw new ArgumentException("Customer email is required");
 
-    public class OrderItem
-    {
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-        public required string ProductName { get; set; }
-        public int Quantity { get; set; }
-        public decimal UnitPrice { get; set; }
+            if (!items.Any())
+                throw new ArgumentException("Order must have at least one item");
+
+            CustomerEmail = customerEmail;
+            _items = items;
+
+            // 手动计算总金额
+            var totalAmount = items.Sum(i => i.UnitPrice * i.Quantity);
+            RaiseEvent(new OrderCreatedEvent(Id, customerEmail, totalAmount));
+        }
+
+        public void MarkAsPaid()
+        {
+            if (Status != OrderStatus.Pending)
+                throw new Exception("Only pending orders can be paid");
+
+            // 手动计算总金额
+            var totalAmount = Items.Sum(i => i.UnitPrice * i.Quantity);
+            Status = OrderStatus.Paid;
+            RaiseEvent(new OrderPaidEvent(Id, totalAmount));
+        }
+
+
+        public void Cancel()
+        {
+            if (Status != OrderStatus.Pending)
+                throw new Exception("Only pending orders can be cancelled");
+
+            Status = OrderStatus.Cancelled;
+            RaiseEvent(new OrderCancelledEvent(Id));
+        }
     }
 }

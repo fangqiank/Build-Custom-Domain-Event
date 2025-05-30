@@ -1,45 +1,38 @@
 ﻿using System.Diagnostics;
+using System.Text.Json;
 
 namespace MediatRReplacedByDomainEvent
 {
-    public class LoggingPipelineBehavior<TCommand, TResponse>(
-        ILogger<LoggingPipelineBehavior<TCommand, TResponse>> logger
-        ): IPipelineBehavior<TCommand, TResponse>
-        where TCommand : ICommand<TResponse>
+    public class LoggingPipelineBehavior<TCommand>(
+        ILogger<LoggingPipelineBehavior<TCommand>> logger
+        ) : CommandPipelineBehavior<TCommand>
+    where TCommand : ICommand
     {
-        public int Order = 100;
-
-        int IPipelineBehavior<TCommand, TResponse>.Order => 1;
-
-        public async Task<TResponse> Handle(
-            TCommand command, 
-            CommandHandlerDelegate<TResponse> next, 
-            CancellationToken ct = default
-            )
+        public override async Task HandleAsync(TCommand command, CancellationToken ct, Func<Task> next)
         {
-            logger.LogInformation("开始处理命令: {CommandType}", typeof(TCommand).Name);
-            logger.LogDebug("命令内容: {@Command}", command);
+            var commandName = typeof(TCommand).Name;
 
-            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            // 序列化命令用于调试
+            var commandJson = JsonSerializer.Serialize(command, new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+
+            logger.LogInformation("Handling command: {Command}\n{CommandJson}",
+                commandName, commandJson);
+
+            var sw = Stopwatch.StartNew();
             try
             {
-                var response = await next();
-                stopwatch.Stop();
-
-                logger.LogInformation(
-                    "命令处理完成: {CommandType}, 耗时: {ElapsedMilliseconds}ms",
-                    typeof(TCommand).Name,
-                    stopwatch.ElapsedMilliseconds);
-
-                return response;
+                await next();
+                logger.LogInformation("Command {Command} handled successfully in {Elapsed}ms",
+                    commandName, sw.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {
-                stopwatch.Stop();
-                logger.LogError(ex,
-                    "命令处理失败: {CommandType}, 耗时: {ElapsedMilliseconds}ms",
-                    typeof(TCommand).Name,
-                    stopwatch.ElapsedMilliseconds);
+                logger.LogError(ex, "Error handling command {Command} in {Elapsed}ms",
+                    commandName, sw.ElapsedMilliseconds);
                 throw;
             }
         }

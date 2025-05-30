@@ -1,19 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace MediatRReplacedByDomainEvent
+﻿namespace MediatRReplacedByDomainEvent
 {
-    // 委托定义
-    public delegate Task<TResponse> CommandHandlerDelegate<TResponse>();
-
-    // 管道行为接口
-    public interface IPipelineBehavior<in TCommand, TResponse>
-        where TCommand : ICommand<TResponse>
+    public interface IPipelineBehavior<TRequest>
     {
-        int Order { get; }
-
-        Task<TResponse> Handle(
-            TCommand command,
-            CommandHandlerDelegate<TResponse> next,
-            CancellationToken ct = default);
+        Task HandleAsync(TRequest request, CancellationToken ct, Func<Task> next);
     }
 }
